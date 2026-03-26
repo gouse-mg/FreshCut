@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: freshcut-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false        # You will paste this manually in Render dashboard
+    healthCheckPath: /health
+    autoDeploy: true

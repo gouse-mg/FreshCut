@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FreshCut Meat Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --pink:       #F472B6;
+    --pink-light: #FDF2F8;
+    --pink-soft:  #FCE7F3;
+    --pink-mid:   #F9A8D4;
+    --pink-dark:  #DB2777;
+    --pink-border:#FBCFE8;
+    --white:      #FFFFFF;
+    --text-main:  #4A2040;
+    --text-soft:  #9D7A90;
+    --text-light: #C4A8BC;
+    --yellow:     #FEF08A;
+    --yellow-mid: #FDE047;
+    --yellow-dark:#CA8A04;
+    --yellow-warm:#FFFBEB;
+    --yellow-border:#FCD34D;
+    --shadow:     rgba(219,39,119,0.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--pink-light);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, rgba(244,114,182,.12) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  header {
+    position: relative; z-index: 10;
+    background: var(--white);
+    border-bottom: 2px solid var(--pink-border);
+    padding: 16px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 20px var(--shadow);
+  }
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--pink-mid), var(--pink-dark));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 700; color: white;
+    box-shadow: 0 4px 14px rgba(219,39,119,.3);
+  }
+  .logo-text h1 { font-size: 1.3rem; font-weight: 600; color: var(--text-main); line-height: 1; }
+  .logo-text span { font-size: .68rem; font-weight: 500; color: var(--pink-dark); letter-spacing: 2.5px; text-transform: uppercase; display: block; margin-top: 3px; }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+  .header-tagline { font-size: .77rem; color: var(--text-soft); font-style: italic; }
+  .header-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 50px;
+    padding: 6px 14px; font-size: .71rem; font-weight: 600; color: #15803D;
+  }
+  .header-badge .dot { width: 7px; height: 7px; background: #22C55E; border-radius: 50%; animation: blink 1.8s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .app {
+    position: relative; z-index: 1; flex: 1;
+    display: grid; grid-template-columns: 270px 1fr;
+    max-width: 1240px; margin: 0 auto; width: 100%;
+    padding: 22px 20px; gap: 20px;
+  }
+  .sidebar { display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: var(--white); border: 1.5px solid var(--pink-border);
+    border-radius: 16px; padding: 18px;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .card-title {
+    font-size: .7rem; font-weight: 600; color: var(--pink-dark);
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1.5px dashed var(--pink-border);
+  }
+  .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--pink-soft); }
+  .menu-item:last-child { border-bottom: none; }
+  .menu-item-name { display: flex; align-items: center; gap: 9px; font-weight: 500; font-size: .87rem; color: var(--text-main); }
+  .meat-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .dot-chicken { background: #FDBA74; }
+  .dot-mutton  { background: #C084FC; }
+  .dot-beef    { background: #F87171; }
+  .menu-price { font-size: .84rem; font-weight: 600; color: var(--pink-dark); }
+  .custom-chip {
+    display: inline-flex; align-items: center;
+    background: var(--pink-soft); border: 1px solid var(--pink-border);
+    border-radius: 30px; padding: 4px 11px;
+    font-size: .73rem; font-weight: 500; color: var(--pink-dark);
+    margin: 3px 3px 3px 0;
+  }
+  .name-input-wrap input {
+    width: 100%; background: var(--pink-light); border: 1.5px solid var(--pink-border);
+    border-radius: 10px; color: var(--text-main); font-family: 'Inter', sans-serif;
+    font-size: .87rem; padding: 9px 13px; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .name-input-wrap input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px rgba(244,114,182,.15); }
+  .name-input-wrap input::placeholder { color: var(--text-light); }
+  .how-to-text { font-size: .77rem; color: var(--text-soft); line-height: 1.85; }
+  .how-to-text em { color: var(--pink-dark); font-style: normal; font-weight: 500; }
+
+  .chat-area { display: flex; flex-direction: column; gap: 14px; height: calc(100vh - 124px); }
+  .chat-messages {
+    flex: 1; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 14px;
+    padding: 2px 4px 2px 0;
+    scrollbar-width: thin; scrollbar-color: var(--pink-border) transparent;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--pink-border); border-radius: 10px; }
+
+  .msg { display: flex; gap: 10px; animation: slideUp .3s ease forwards; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .msg.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 36px; height: 36px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .68rem; font-weight: 700; flex-shrink: 0; letter-spacing: .3px;
+  }
+  .avatar-bot { background: linear-gradient(135deg, var(--pink-mid), var(--pink-dark)); color: white; box-shadow: 0 3px 10px rgba(219,39,119,.25); }
+  .avatar-user { background: linear-gradient(135deg, #E9D5FF, #C084FC); color: #6B21A8; }
+
+  .bubble {
+    max-width: 76%; background: var(--white);
+    border: 1.5px solid var(--pink-border);
+    border-radius: 16px 16px 16px 4px;
+    padding: 12px 15px; font-size: .89rem; line-height: 1.6;
+    color: var(--text-main); box-shadow: 0 2px 10px var(--shadow);
+  }
+  .msg.user .bubble {
+    background: linear-gradient(135deg, var(--pink-soft), #FDF2F8);
+    border-color: var(--pink-mid);
+    border-radius: 16px 16px 4px 16px;
+  }
+
+  /* BILL */
+  .bill-wrapper { width: 100%; max-width: 500px; margin-top: 10px; }
+  .bill {
+    background: var(--yellow-warm); border-radius: 16px; overflow: hidden;
+    color: #5C3D00; font-family: 'Inter', sans-serif;
+    box-shadow: 0 8px 32px rgba(202,138,4,.2), 0 0 0 1.5px var(--yellow-border);
+  }
+  .bill-header {
+    background: linear-gradient(135deg, var(--yellow-mid) 0%, #FDE68A 100%);
+    padding: 22px 24px 20px; text-align: center;
+    border-bottom: 2px dashed var(--yellow-border);
+  }
+  .bill-shop-icon {
+    width: 42px; height: 42px; background: white; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px; font-size: .78rem; font-weight: 700;
+    color: var(--yellow-dark); box-shadow: 0 2px 8px rgba(202,138,4,.25);
+  }
+  .bill-shop-name { font-size: 1.22rem; font-weight: 600; color: #78350F; }
+  .bill-shop-sub { font-size: .67rem; color: #92400E; letter-spacing: 2.5px; text-transform: uppercase; margin-top: 3px; font-weight: 500; }
+  .bill-shop-addr { font-size: .69rem; color: #B45309; margin-top: 6px; line-height: 1.5; }
+  .bill-body { padding: 18px 22px; background: white; }
+  .bill-meta { display: flex; justify-content: space-between; font-size: .71rem; color: #92400E; margin-bottom: 6px; }
+  .bill-meta strong { color: #78350F; font-weight: 600; }
+  .bill-divider { border: none; border-top: 1.5px dashed #FCD34D; margin: 12px 0; }
+  .bill-items-header {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 8px;
+    font-size: .66rem; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; color: #B45309;
+    padding-bottom: 8px; border-bottom: 1px solid #FEF3C7;
+  }
+  .bill-item { padding: 10px 0; border-bottom: 1px solid #FFFBEB; }
+  .bill-item:last-child { border-bottom: none; }
+  .bill-item-row1 { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; }
+  .bill-item-name { font-weight: 600; font-size: .89rem; color: #78350F; text-transform: capitalize; }
+  .bill-item-qty { font-size: .79rem; color: #92400E; text-align: center; }
+  .bill-item-price { font-size: .89rem; font-weight: 600; color: #B45309; text-align: right; }
+  .bill-item-customs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  .custom-tag {
+    background: #FEF9C3; border: 1px solid #FDE047; border-radius: 20px;
+    padding: 2px 8px; font-size: .66rem; color: #92400E;
+    font-weight: 500; text-transform: capitalize;
+  }
+  .bill-rate-note { font-size: .67rem; color: #B45309; margin-top: 3px; opacity: .75; }
+  .bill-totals { margin-top: 4px; }
+  .bill-total-row { display: flex; justify-content: space-between; font-size: .83rem; color: #92400E; padding: 4px 0; }
+  .bill-total-row.grand { font-weight: 700; font-size: 1rem; color: #78350F; margin-top: 8px; padding-top: 10px; border-top: 2px solid var(--yellow-mid); }
+  .bill-total-row.grand .bill-total-amt { color: #B45309; }
+  .bill-footer {
+    background: linear-gradient(135deg, #FFFBEB, var(--yellow));
+    border-top: 2px dashed var(--yellow-border);
+    padding: 14px 22px; text-align: center;
+  }
+  .bill-thankyou { font-size: .93rem; font-weight: 600; color: #78350F; margin-bottom: 4px; }
+  .bill-note { font-size: .71rem; color: #92400E; }
+  .bill-barcode { margin-top: 10px; font-size: .59rem; color: #D97706; letter-spacing: 1.5px; word-break: break-all; }
+
+  /* Confirm / Re-generate buttons */
+  .bill-actions { display: flex; gap: 10px; margin-top: 12px; }
+  .btn-confirm {
+    flex: 1; background: linear-gradient(135deg, #22C55E, #15803D);
+    border: none; border-radius: 11px; color: white;
+    font-size: .86rem; font-weight: 600; font-family: 'Inter', sans-serif;
+    padding: 11px 0; cursor: pointer;
+    box-shadow: 0 3px 12px rgba(34,197,94,.35);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-confirm:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,197,94,.45); }
+  .btn-confirm:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .btn-regen {
+    flex: 1; background: var(--white);
+    border: 1.5px solid var(--pink-border); border-radius: 11px;
+    color: var(--pink-dark); font-size: .86rem; font-weight: 600;
+    font-family: 'Inter', sans-serif; padding: 11px 0; cursor: pointer;
+    transition: background .15s;
+  }
+  .btn-regen:hover { background: var(--pink-soft); }
+
+  /* Confirmed badge on bill */
+  .confirmed-badge {
+    display: flex; align-items: center; gap: 7px; margin-top: 10px;
+    background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 10px;
+    padding: 9px 14px; font-size: .82rem; font-weight: 600; color: #15803D;
+  }
+  .confirmed-badge .dot { width: 8px; height: 8px; background: #22C55E; border-radius: 50%; animation: blink 1.8s infinite; }
+
+  .hints { display: flex; flex-wrap: wrap; gap: 7px; }
+  .hint {
+    background: var(--white); border: 1.5px solid var(--pink-border);
+    border-radius: 30px; padding: 6px 14px;
+    font-size: .74rem; color: var(--pink-dark); font-weight: 500;
+    cursor: pointer; transition: background .15s, border-color .15s;
+  }
+  .hint:hover { background: var(--pink-soft); border-color: var(--pink); }
+
+  .input-area {
+    background: var(--white); border: 1.5px solid var(--pink-border);
+    border-radius: 14px; padding: 12px 14px;
+    display: flex; gap: 10px; align-items: flex-end;
+    margin-top: 10px; box-shadow: 0 2px 12px var(--shadow);
+  }
+  .input-area textarea {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: 'Inter', sans-serif; font-size: .89rem;
+    color: var(--text-main); resize: none;
+    min-height: 40px; max-height: 120px; line-height: 1.5;
+  }
+  .input-area textarea::placeholder { color: var(--text-light); }
+  .send-btn {
+    background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+    border: none; cursor: pointer;
+    padding: 0 18px; height: 42px; border-radius: 11px;
+    color: white; font-size: .84rem; font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: transform .15s, box-shadow .15s; flex-shrink: 0;
+    box-shadow: 0 3px 12px rgba(219,39,119,.35);
+  }
+  .send-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(219,39,119,.45); }
+  .send-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+  .loading-dots span {
+    display: inline-block; width: 7px; height: 7px;
+    background: var(--pink); border-radius: 50%; margin: 0 2px;
+    animation: bounce .85s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: .15s; }
+  .loading-dots span:nth-child(3) { animation-delay: .3s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-6px);opacity:1} }
+
+  @media (max-width: 820px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .chat-area { height: calc(100vh - 108px); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">FC</div>
+    <div class="logo-text">
+      <h1>FreshCut Meat Shop</h1>
+      <span>Where every kilo counts</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="header-tagline">We cut. You cook. Everyone wins.</span>
+    <div class="header-badge"><span class="dot"></span> Open and Ready to Chop</div>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="card">
+      <div class="card-title">Today's Menu</div>
+      <div class="menu-item">
+        <div class="menu-item-name"><span class="meat-dot dot-chicken"></span>Chicken</div>
+        <div class="menu-price">Rs. 180/kg</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-name"><span class="meat-dot dot-mutton"></span>Mutton</div>
+        <div class="menu-price">Rs. 360/kg</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-name"><span class="meat-dot dot-beef"></span>Beef</div>
+        <div class="menu-price">Rs. 200/kg</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Customisations</div>
+      <div class="custom-chip">Deep Cut +Rs.20/kg</div>
+      <div class="custom-chip">Keema +Rs.30/kg</div>
+      <div class="custom-chip">Small Pieces +Rs.10/kg</div>
+      <div class="custom-chip">Soaked +Rs.10/kg</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Your Good Name</div>
+      <div class="name-input-wrap">
+        <input type="text" id="customerName" placeholder="e.g. Salman Khan..."/>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">How to Order</div>
+      <div class="how-to-text">
+        Just talk to us like a normal human being!<br><br>
+        <em>"1 kg chicken, deep cut please"</em><br>
+        <em>"Half kg mutton keema, making biryani"</em><br>
+        <em>"2 kg beef small pieces, soaked"</em><br><br>
+        We understand plain language. No engineering degree required.<br><br>
+        When happy with the bill, hit <em>Confirm Order</em> to place it.
+      </div>
+    </div>
+  </aside>
+
+  <div class="chat-area">
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg">
+        <div class="avatar avatar-bot">FC</div>
+        <div class="bubble">
+          Assalamu Alaikum! Welcome to <strong>FreshCut Meat Shop</strong> — where the meat is always fresh and the prices are only slightly heartbreaking.<br><br>
+          Tell me what you want and I will generate a proper bill. Don't like it? Just tell me again and I will regenerate. Once you are happy, click <strong>Confirm Order</strong>.<br><br>
+          <em>Try: "Give me 1.5 kg chicken with deep cut and half kg mutton keema"</em>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="hints">
+        <div class="hint" onclick="useHint(this)">1 kg Chicken + Deep Cut</div>
+        <div class="hint" onclick="useHint(this)">500g Mutton Keema</div>
+        <div class="hint" onclick="useHint(this)">2 kg Beef small pieces</div>
+        <div class="hint" onclick="useHint(this)">1 kg Chicken + 1 kg Mutton soaked</div>
+      </div>
+      <div class="input-area">
+        <textarea id="orderInput" placeholder="Type your order in plain English... or Urdu. We do not judge." rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendOrder()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "http://localhost:8000";
+
+// Track the latest pending bill and the prompt that generated it
+let pendingBill = null;
+let pendingPrompt = null;
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendOrder(); }
+}
+function useHint(el) {
+  const inp = document.getElementById('orderInput');
+  inp.value = el.textContent;
+  autoResize(inp); inp.focus();
+}
+
+function addMessage(role, content) {
+  const wrap = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar ' + (role === 'user' ? 'avatar-user' : 'avatar-bot');
+  avatar.textContent = role === 'user' ? 'YOU' : 'FC';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  if (typeof content === 'string') bubble.innerHTML = content;
+  else bubble.appendChild(content);
+  div.appendChild(avatar); div.appendChild(bubble);
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return bubble;
+}
+
+function addLoading() {
+  const wrap = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg'; div.id = 'loadingMsg';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar avatar-bot'; avatar.textContent = 'FC';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = '<span style="font-size:.81rem;color:#9D7A90">Sharpening our knives and calculating your bill...</span><br><div class="loading-dots" style="margin-top:7px"><span></span><span></span><span></span></div>';
+  div.appendChild(avatar); div.appendChild(bubble);
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function removeLoading() {
+  const el = document.getElementById('loadingMsg');
+  if (el) el.remove();
+}
+
+function renderBill(bill, prompt, confirmed = false) {
+  const fmt = n => 'Rs. ' + parseFloat(n).toFixed(2);
+  const wrapper = document.createElement('div');
+  wrapper.className = 'bill-wrapper';
+
+  let itemsHTML = '';
+  for (const item of bill.items) {
+    const meatName = (item.meat || '').charAt(0).toUpperCase() + (item.meat || '').slice(1);
+    const customs = (item.customizations || []).map(c => '<span class="custom-tag">' + c + '</span>').join('');
+    const customText = customs ? '<div class="bill-item-customs">' + customs + '</div>' : '';
+    const rateNote = 'Rs.' + item.base_price_per_kg + ' base + Rs.' + item.customization_charge_per_kg + ' extras = Rs.' + item.total_price_per_kg + '/kg';
+    itemsHTML += '<div class="bill-item"><div class="bill-item-row1"><div class="bill-item-name">' + meatName + '</div><div class="bill-item-qty">' + item.quantity_kg + ' kg</div><div class="bill-item-price">' + fmt(item.item_total) + '</div></div>' + customText + '<div class="bill-rate-note">' + rateNote + '</div></div>';
+  }
+
+  const barcode = 'FC' + bill.bill_id.replace(/-/g,'') + Math.floor(Math.random()*9e8);
+
+  wrapper.innerHTML = '<div class="bill"><div class="bill-header"><div class="bill-shop-icon">FC</div><div class="bill-shop-name">' + bill.shop_name + '</div><div class="bill-shop-sub">Premium Cuts, No Drama</div><div class="bill-shop-addr">' + bill.shop_address + ' | ' + bill.shop_phone + '</div></div><div class="bill-body"><div class="bill-meta"><span>Customer: <strong>' + (bill.customer_name || 'Our Valued Guest') + '</strong></span><span>Bill No: <strong>' + bill.bill_id + '</strong></span></div><div class="bill-meta"><span>Date: <strong>' + bill.timestamp + '</strong></span><span>GST: <strong>5%</strong></span></div><hr class="bill-divider"/><div class="bill-items-header"><span>Item</span><span>Qty</span><span>Amount</span></div>' + itemsHTML + '<hr class="bill-divider"/><div class="bill-totals"><div class="bill-total-row"><span>Subtotal</span><span>' + fmt(bill.subtotal) + '</span></div><div class="bill-total-row"><span>GST (5%) — yes it hurts us too</span><span>' + fmt(bill.gst) + '</span></div><div class="bill-total-row grand"><span>Grand Total</span><span class="bill-total-amt">' + fmt(bill.grand_total) + '</span></div></div></div><div class="bill-footer"><div class="bill-thankyou">Thank you! Come back soon, we miss you already.</div><div class="bill-note">' + (bill.notes || 'Fresh. Halal. No funny business.') + '</div><div class="bill-barcode">' + barcode + '</div></div></div>';
+
+  if (!confirmed) {
+    // Add action buttons
+    const actions = document.createElement('div');
+    actions.className = 'bill-actions';
+    actions.id = 'actions-' + bill.bill_id;
+
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = 'btn-confirm';
+    confirmBtn.textContent = '✓ Confirm Order';
+    confirmBtn.onclick = () => confirmOrder(bill, prompt, actions);
+
+    const regenBtn = document.createElement('button');
+    regenBtn.className = 'btn-regen';
+    regenBtn.textContent = '↺ Regenerate';
+    regenBtn.onclick = () => {
+      document.getElementById('orderInput').value = prompt;
+      autoResize(document.getElementById('orderInput'));
+      document.getElementById('orderInput').focus();
+    };
+
+    actions.appendChild(regenBtn);
+    actions.appendChild(confirmBtn);
+    wrapper.appendChild(actions);
+  } else {
+    const badge = document.createElement('div');
+    badge.className = 'confirmed-badge';
+    badge.innerHTML = '<span class="dot"></span> Order confirmed and sent to the serving center!';
+    wrapper.appendChild(badge);
+  }
+
+  return wrapper;
+}
+
+async function confirmOrder(bill, prompt, actionsEl) {
+  actionsEl.innerHTML = '<span style="font-size:.82rem;color:#9D7A90">Placing your order...</span>';
+
+  try {
+    const res = await fetch(API_BASE + '/confirm-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bill, order_prompt: prompt })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      actionsEl.innerHTML = '<span style="color:#DB2777;font-size:.82rem">Could not confirm: ' + (data.detail || 'Unknown error') + '</span>';
+      return;
+    }
+
+    // Replace actions with confirmed badge
+    const badge = document.createElement('div');
+    badge.className = 'confirmed-badge';
+    badge.innerHTML = '<span class="dot"></span> Order placed! Assigned to <strong>' + data.assigned_shop.name + '</strong>';
+    actionsEl.replaceWith(badge);
+
+    addMessage('bot', '🎉 <strong>Order confirmed!</strong> Your order has been sent to <strong>' + data.assigned_shop.name + '</strong>. They will have your order ready shortly. Come on over!');
+    pendingBill = null;
+    pendingPrompt = null;
+
+  } catch (err) {
+    actionsEl.innerHTML = '<span style="color:#DB2777;font-size:.82rem">Network error. Is the backend running?</span>';
+  }
+}
+
+async function sendOrder() {
+  const input = document.getElementById('orderInput');
+  const btn = document.getElementById('sendBtn');
+  const text = input.value.trim();
+  if (!text) return;
+  const customerName = document.getElementById('customerName').value.trim() || 'Valued Customer';
+
+  addMessage('user', text);
+  input.value = ''; autoResize(input);
+  btn.disabled = true;
+  addLoading();
+
+  try {
+    const res = await fetch(API_BASE + '/parse-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, customer_name: customerName })
+    });
+    const data = await res.json();
+    removeLoading();
+
+    if (!res.ok) {
+      addMessage('bot', '<span style="color:#DB2777">Oops! Something went wrong in the kitchen: ' + (data.detail || 'Unknown error. Even we are confused.') + '</span>');
+    } else {
+      const bill = data.bill;
+      pendingBill = bill;
+      pendingPrompt = text;
+
+      const intro = document.createElement('div');
+      intro.innerHTML = 'Mashallah, <strong>' + bill.customer_name + '</strong>! Here is your bill — <strong style="color:#DB2777">Rs. ' + parseFloat(bill.grand_total).toFixed(2) + '</strong>. Happy with it? Confirm below, or tell me to change it!';
+
+      const bubble = addMessage('bot', intro);
+      bubble.appendChild(renderBill(bill, text));
+    }
+  } catch (err) {
+    removeLoading();
+    addMessage('bot', '<span style="color:#DB2777">We tried to reach the server but it seems to be on a tea break. Make sure the backend is running on port 8000.<br><small style="opacity:.6">' + err.message + '</small></span>');
+  }
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>

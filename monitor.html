@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FreshCut — Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --pink:       #F472B6;
+    --pink-light: #FDF2F8;
+    --pink-soft:  #FCE7F3;
+    --pink-mid:   #F9A8D4;
+    --pink-dark:  #DB2777;
+    --pink-border:#FBCFE8;
+    --white:      #FFFFFF;
+    --text-main:  #4A2040;
+    --text-soft:  #9D7A90;
+    --text-light: #C4A8BC;
+    --shadow:     rgba(219,39,119,0.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--pink-light);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, rgba(244,114,182,.12) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none; z-index: 0;
+  }
+  header {
+    position: relative; z-index: 10;
+    background: var(--white);
+    border-bottom: 2px solid var(--pink-border);
+    padding: 16px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 20px var(--shadow);
+  }
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--pink-mid), var(--pink-dark));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 700; color: white;
+    box-shadow: 0 4px 14px rgba(219,39,119,.3);
+  }
+  .logo-text h1 { font-size: 1.3rem; font-weight: 600; color: var(--text-main); line-height: 1; }
+  .logo-text span { font-size: .68rem; font-weight: 500; color: var(--pink-dark); letter-spacing: 2.5px; text-transform: uppercase; display: block; margin-top: 3px; }
+  .monitor-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: #FFF7ED; border: 1.5px solid #FED7AA; border-radius: 50px;
+    padding: 6px 14px; font-size: .71rem; font-weight: 600; color: #C2410C;
+  }
+  .monitor-badge .dot { width: 7px; height: 7px; background: #F97316; border-radius: 50%; animation: blink 1.8s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .page { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; width: 100%; padding: 26px 20px; }
+
+  /* Search bar */
+  .search-section { margin-bottom: 26px; }
+  .search-label { font-size: .7rem; font-weight: 600; color: var(--pink-dark); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .search-row { display: flex; gap: 10px; }
+  .search-input {
+    flex: 1; max-width: 380px;
+    background: var(--white); border: 1.5px solid var(--pink-border);
+    border-radius: 12px; color: var(--text-main); font-family: 'Inter', sans-serif;
+    font-size: .9rem; padding: 10px 16px; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .search-input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px rgba(244,114,182,.15); }
+  .search-input::placeholder { color: var(--text-light); }
+  .search-btn {
+    background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+    border: none; border-radius: 12px; color: white;
+    font-size: .86rem; font-weight: 600; font-family: 'Inter', sans-serif;
+    padding: 10px 22px; cursor: pointer;
+    box-shadow: 0 3px 12px rgba(219,39,119,.35);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .search-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(219,39,119,.45); }
+  .search-all-btn {
+    background: var(--white); border: 1.5px solid var(--pink-border);
+    border-radius: 12px; color: var(--pink-dark);
+    font-size: .86rem; font-weight: 600; font-family: 'Inter', sans-serif;
+    padding: 10px 18px; cursor: pointer;
+    transition: background .15s;
+  }
+  .search-all-btn:hover { background: var(--pink-soft); }
+
+  /* Grid */
+  .shops-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; }
+  
+  /* Shop card */
+  .shop-card {
+    background: var(--white); border: 1.5px solid var(--pink-border);
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 2px 14px var(--shadow);
+    transition: box-shadow .2s;
+    cursor: pointer;
+  }
+  .shop-card:hover { box-shadow: 0 6px 28px rgba(219,39,119,.18); }
+  .shop-card.expanded { cursor: default; }
+
+  .shop-card-header {
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1.5px solid var(--pink-border);
+    background: linear-gradient(135deg, var(--pink-soft), var(--white));
+  }
+  .shop-avatar {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--pink-mid), var(--pink-dark));
+    border-radius: 13px; display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 700; color: white;
+    box-shadow: 0 3px 10px rgba(219,39,119,.25); flex-shrink: 0;
+  }
+  .shop-meta { flex: 1; min-width: 0; }
+  .shop-name { font-size: .97rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shop-sub { font-size: .72rem; color: var(--text-soft); margin-top: 3px; }
+  .shop-status { display: flex; align-items: center; gap: 5px; }
+  .status-pip {
+    width: 9px; height: 9px; border-radius: 50%;
+  }
+  .pip-active { background: #22C55E; animation: blink 1.8s infinite; }
+  .pip-idle   { background: #D1D5DB; }
+  .status-text { font-size: .71rem; font-weight: 600; }
+  .text-active { color: #15803D; }
+  .text-idle   { color: #6B7280; }
+
+  .shop-card-body { padding: 14px 18px; }
+  .queue-count-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .queue-label { font-size: .69rem; font-weight: 600; color: var(--pink-dark); letter-spacing: 1.5px; text-transform: uppercase; }
+  .queue-badge {
+    background: var(--pink-soft); border: 1px solid var(--pink-border);
+    border-radius: 20px; padding: 3px 11px;
+    font-size: .72rem; font-weight: 600; color: var(--pink-dark);
+  }
+
+  /* Invoice rows */
+  .invoice-list { display: flex; flex-direction: column; gap: 8px; }
+  .invoice-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 11px;
+    background: var(--pink-light); border: 1px solid var(--pink-border);
+  }
+  .invoice-row.serving { background: #F0FDF4; border-color: #BBF7D0; }
+  .invoice-row.queued  { background: #FFFBEB; border-color: #FDE68A; }
+
+  .inv-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .inv-dot.serving { background: #22C55E; animation: blink 1.8s infinite; }
+  .inv-dot.queued  { background: #F59E0B; animation: blink 2.4s infinite; }
+
+  .inv-info { flex: 1; min-width: 0; }
+  .inv-name { font-size: .86rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .inv-code { font-size: .68rem; color: var(--text-soft); margin-top: 1px; }
+  .inv-amount { font-size: .86rem; font-weight: 600; color: var(--pink-dark); flex-shrink: 0; }
+  .inv-status-tag {
+    font-size: .64rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px; flex-shrink: 0;
+  }
+  .tag-serving { background: #DCFCE7; color: #15803D; }
+  .tag-queued  { background: #FEF9C3; color: #92400E; }
+
+  .empty-queue {
+    text-align: center; padding: 20px 0;
+    font-size: .82rem; color: var(--text-light);
+  }
+  .empty-queue span { display: block; font-size: 1.4rem; margin-bottom: 6px; }
+
+  /* Collapse button */
+  .collapse-btn {
+    display: block; width: 100%; padding: 10px;
+    background: var(--pink-soft); border: none; border-top: 1.5px solid var(--pink-border);
+    color: var(--pink-dark); font-size: .78rem; font-weight: 600;
+    font-family: 'Inter', sans-serif; cursor: pointer;
+    transition: background .15s;
+  }
+  .collapse-btn:hover { background: var(--pink-border); }
+
+  .no-results { text-align: center; padding: 60px 20px; color: var(--text-soft); font-size: .9rem; }
+  .no-results span { display: block; font-size: 2.5rem; margin-bottom: 10px; }
+
+  .refresh-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .refresh-btn {
+    background: var(--white); border: 1.5px solid var(--pink-border);
+    border-radius: 10px; color: var(--pink-dark);
+    font-size: .78rem; font-weight: 600; font-family: 'Inter', sans-serif;
+    padding: 7px 16px; cursor: pointer; transition: background .15s;
+  }
+  .refresh-btn:hover { background: var(--pink-soft); }
+  .last-updated { font-size: .72rem; color: var(--text-light); }
+
+  @media(max-width:600px) {
+    .shops-grid { grid-template-columns: 1fr; }
+    .search-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">FC</div>
+    <div class="logo-text">
+      <h1>FreshCut Meat Shop</h1>
+      <span>Operations Monitor</span>
+    </div>
+  </div>
+  <div class="monitor-badge"><span class="dot"></span> Live Monitor</div>
+</header>
+
+<div class="page">
+  <div class="search-section">
+    <div class="search-label">Search Serving Center</div>
+    <div class="search-row">
+      <input class="search-input" id="shopIdInput" type="number" placeholder="Enter Shop ID (e.g. 1, 2, 3...)"/>
+      <button class="search-btn" onclick="searchShop()">Search</button>
+      <button class="search-all-btn" onclick="loadAllShops()">All Shops</button>
+    </div>
+  </div>
+
+  <div class="refresh-row">
+    <button class="refresh-btn" onclick="refreshAll()">↻ Refresh</button>
+    <span class="last-updated" id="lastUpdated">—</span>
+  </div>
+
+  <div class="shops-grid" id="shopsGrid">
+    <div class="no-results"><span>🔍</span>Search for a shop or click "All Shops" to begin.</div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "http://localhost:8000";
+let expandedShops = new Set();
+let currentShopIds = [];
+
+function fmt(n) { return 'Rs. ' + parseFloat(n).toFixed(2); }
+
+function renderShopCard(shop, expanded) {
+  const isActive = shop.active;
+  const queue = shop.queue || [];
+
+  const headerHTML = `
+    <div class="shop-card-header">
+      <div class="shop-avatar">FC</div>
+      <div class="shop-meta">
+        <div class="shop-name">${shop.name}</div>
+        <div class="shop-sub">ID: ${shop.id} &nbsp;·&nbsp; Coords: (${shop.x}, ${shop.y}) &nbsp;·&nbsp; ★ ${shop.rating}</div>
+      </div>
+      <div class="shop-status">
+        <span class="status-pip ${isActive ? 'pip-active' : 'pip-idle'}"></span>
+        <span class="status-text ${isActive ? 'text-active' : 'text-idle'}">${isActive ? 'Active' : 'Idle'}</span>
+      </div>
+    </div>`;
+
+  let bodyHTML = '';
+  if (expanded) {
+    let invoicesHTML = '';
+    if (queue.length === 0) {
+      invoicesHTML = '<div class="empty-queue"><span>🥩</span>No orders in queue right now.</div>';
+    } else {
+      invoicesHTML = '<div class="invoice-list">' + queue.map(inv => `
+        <div class="invoice-row ${inv.status}">
+          <span class="inv-dot ${inv.status}"></span>
+          <div class="inv-info">
+            <div class="inv-name">${inv.customer_name}</div>
+            <div class="inv-code">${inv.invoice_id} · ${inv.order.length > 40 ? inv.order.slice(0,40)+'…' : inv.order}</div>
+          </div>
+          <span class="inv-amount">${fmt(inv.amount)}</span>
+          <span class="inv-status-tag tag-${inv.status}">${inv.status === 'serving' ? '● Serving' : `#${inv.position}`}</span>
+        </div>`).join('') + '</div>';
+    }
+
+    bodyHTML = `
+      <div class="shop-card-body">
+        <div class="queue-count-row">
+          <span class="queue-label">Order Queue</span>
+          <span class="queue-badge">${queue.length} order${queue.length !== 1 ? 's' : ''}</span>
+        </div>
+        ${invoicesHTML}
+      </div>
+      <button class="collapse-btn" onclick="collapseShop(${shop.id})">▲ Collapse</button>`;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'shop-card' + (expanded ? ' expanded' : '');
+  card.id = 'shop-card-' + shop.id;
+  card.innerHTML = headerHTML + bodyHTML;
+
+  if (!expanded) {
+    card.onclick = () => expandShop(shop.id);
+  }
+  return card;
+}
+
+async function expandShop(shopId) {
+  expandedShops.add(shopId);
+  await refreshShopCard(shopId);
+}
+
+function collapseShop(shopId) {
+  expandedShops.delete(shopId);
+  const card = document.getElementById('shop-card-' + shopId);
+  if (!card) return;
+  // Find the shop data we already rendered and re-render collapsed
+  fetchAndRenderShop(shopId, false);
+}
+
+async function fetchAndRenderShop(shopId, expand) {
+  try {
+    const res = await fetch(API_BASE + '/monitor/shop/' + shopId);
+    if (!res.ok) return;
+    const shop = await res.json();
+    const card = document.getElementById('shop-card-' + shopId);
+    if (!card) return;
+    const newCard = renderShopCard(shop, expand);
+    card.replaceWith(newCard);
+  } catch (e) { console.error(e); }
+}
+
+async function refreshShopCard(shopId) {
+  await fetchAndRenderShop(shopId, expandedShops.has(shopId));
+}
+
+async function searchShop() {
+  const id = parseInt(document.getElementById('shopIdInput').value.trim());
+  if (!id) return;
+  const grid = document.getElementById('shopsGrid');
+  grid.innerHTML = '<div class="no-results"><span>⌛</span>Loading...</div>';
+  try {
+    const res = await fetch(API_BASE + '/monitor/shop/' + id);
+    if (!res.ok) {
+      grid.innerHTML = '<div class="no-results"><span>🔍</span>Shop #' + id + ' not found.</div>';
+      return;
+    }
+    const shop = await res.json();
+    currentShopIds = [shop.id];
+    grid.innerHTML = '';
+    grid.appendChild(renderShopCard(shop, false));
+    updateTimestamp();
+  } catch (e) {
+    grid.innerHTML = '<div class="no-results"><span>⚠️</span>Could not connect to backend.</div>';
+  }
+}
+
+async function loadAllShops() {
+  const grid = document.getElementById('shopsGrid');
+  grid.innerHTML = '<div class="no-results"><span>⌛</span>Loading all shops...</div>';
+  try {
+    const res = await fetch(API_BASE + '/monitor/shops');
+    if (!res.ok) throw new Error();
+    const shops = await res.json();
+    currentShopIds = shops.map(s => s.id);
+    grid.innerHTML = '';
+    if (shops.length === 0) {
+      grid.innerHTML = '<div class="no-results"><span>🥩</span>No shops found. POST to /seed-shops first.</div>';
+      return;
+    }
+    for (const shop of shops) {
+      grid.appendChild(renderShopCard(shop, expandedShops.has(shop.id)));
+    }
+    updateTimestamp();
+  } catch (e) {
+    grid.innerHTML = '<div class="no-results"><span>⚠️</span>Could not connect to backend.</div>';
+  }
+}
+
+async function refreshAll() {
+  if (currentShopIds.length === 0) { await loadAllShops(); return; }
+  for (const id of currentShopIds) {
+    await refreshShopCard(id);
+  }
+  updateTimestamp();
+}
+
+function updateTimestamp() {
+  document.getElementById('lastUpdated').textContent =
+    'Last updated: ' + new Date().toLocaleTimeString();
+}
+
+// Auto-refresh every 10 seconds
+setInterval(refreshAll, 10000);
+
+// Load all on start
+loadAllShops();
+</script>
+</body>
+</html>
